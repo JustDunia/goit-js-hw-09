@@ -1,0 +1,26 @@
+.wrapper {
+  text-align: center;
+}
+
+.timer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.field {
+  flex-basis: 80px;
+}
+
+.value {
+  display: block;
+  font-size: 44px;
+}
+
+.label {
+  text-transform: uppercase;
+}
+
+button {
+  cursor: pointer;
+}
