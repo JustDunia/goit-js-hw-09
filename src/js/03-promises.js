@@ -9,15 +9,11 @@ function createPromise(position, delay) {
   const shouldResolve = Math.random() > 0.3;
   if (shouldResolve) {
     return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(Notify.success(`Fulfilled promise ${position} in ${delay}ms`));
-      }, delay);
+      setTimeout(() => resolve({ position, delay }), delay);
     });
   } else {
-    return new Promise(reject => {
-      setTimeout(() => {
-        reject(Notify.failure(`Rejected promise ${position} in ${delay}ms`));
-      }, delay);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject({ position, delay }), delay);
     });
   }
 }
@@ -28,8 +24,15 @@ function runPromises() {
   const amount = Number(amountInput.value);
 
   let timer = delay;
+
   for (let i = 1; i <= amount; i++) {
-    createPromise(i, timer);
+    createPromise(i, timer)
+      .then(({ position, delay }) => {
+        Notify.success(`Fulfilled promise ${position} in ${delay}ms`);
+      })
+      .catch(({ position, delay }) => {
+        Notify.failure(`Rejected promise ${position} in ${delay}ms`);
+      });
     timer += step;
   }
 }
