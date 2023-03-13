@@ -2,6 +2,7 @@ import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
+const input = document.querySelector('#datetime-picker');
 const btn = document.querySelector('[data-start]');
 const remainingDays = document.querySelector('[data-days]');
 const remainingHours = document.querySelector('[data-hours]');
@@ -10,6 +11,7 @@ const remainingSeconds = document.querySelector('[data-seconds]');
 
 let isDisabled = true;
 let remainingTime;
+let selectedDate;
 
 const options = {
   enableTime: true,
@@ -17,7 +19,8 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    pickDateHandler(selectedDates[0]);
+    selectedDate = selectedDates[0];
+    pickDateHandler(selectedDate);
   },
 };
 
@@ -31,7 +34,6 @@ function btnDisabling() {
 
 function pickDateHandler(selectedDate) {
   if (selectedDate <= new Date()) {
-    // window.alert('Please choose a date in the future');
     Notify.failure('Please choose a date in the future');
     isDisabled = true;
     btnDisabling();
@@ -72,13 +74,34 @@ function setTimer() {
   remainingSeconds.textContent = timeObject.seconds;
 }
 
+let timerID;
+
 function runTimer() {
-  remainingTime -= 1000;
-  setTimer();
+  if (remainingTime >= 1000) {
+    remainingTime -= 1000;
+    setTimer();
+  } else {
+    clearInterval(timerID);
+    isDisabled = false;
+    btnDisabling();
+    input.removeAttribute('disabled');
+  }
 }
 
-btn.addEventListener('click', () => {
-  setInterval(runTimer, 1000);
-});
+function startHandler() {
+  remainingTime = selectedDate.getTime() - new Date().getTime();
+  if (remainingTime > 500) {
+    setTimer();
+    timerID = setInterval(runTimer, 1000);
+    isDisabled = true;
+    btnDisabling();
+    input.setAttribute('disabled', true);
+  } else {
+    remainingTime = 0;
+    setTimer();
+  }
+}
+
+btn.addEventListener('click', startHandler);
 
 btnDisabling();
